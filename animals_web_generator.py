@@ -1,9 +1,4 @@
-import json
-
-def load_data(file_path):
-    """Load JSON data from file"""
-    with open(file_path, "r") as handle:
-        return json.load(handle)
+import data_fetcher
 
 def serialize_animal(animal):
     """Convert a single animal dictionary into HTML list item"""
@@ -25,9 +20,13 @@ def serialize_animal(animal):
         '</li>\n'
     )
 
-def build_html(animals_data, template_path, output_path):
-    """Generate HTML file with animal data"""
-    output = ''.join(serialize_animal(animal) for animal in animals_data)
+
+def build_html(animals_data, template_path, output_path, query=None):
+    """Generate HTML file with animal data or error message"""
+    if animals_data and len(animals_data) > 0:
+        output = ''.join(serialize_animal(animal) for animal in animals_data)
+    else:
+        output = f'<h2>The animal "{query}" doesn\'t exist.</h2>'
 
     with open(template_path, "r") as file:
         html_template = file.read()
@@ -37,10 +36,13 @@ def build_html(animals_data, template_path, output_path):
     with open(output_path, "w") as file:
         file.write(html_content)
 
+
 def main():
-    animals_data = load_data("animals_data.json")
-    build_html(animals_data, "animals_template.html", "animals.html")
+    animal_name = input("Please enter an animal: ")
+    animals_data = data_fetcher.fetch_data(animal_name)
+    build_html(animals_data, "animals_template.html", "animals.html", query=animal_name)
     print("animals.html generated successfully")
+
 
 if __name__ == "__main__":
     main()
